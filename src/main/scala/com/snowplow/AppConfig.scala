@@ -6,10 +6,9 @@ import com.snowplow.AppConfig.{HttpConfig, RedisConfig}
 import pureconfig._
 import pureconfig.generic.auto._
 
-
 final case class AppConfig(
-    redis: RedisConfig,
-    http: HttpConfig
+  redis: RedisConfig,
+  http: HttpConfig
 )
 
 object AppConfig {

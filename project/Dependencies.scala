@@ -9,6 +9,8 @@ object Dependencies {
     val circeSchemaVersion = "0.2.0"
     val redisVersion       = "1.2.0"
     val pureConfigVersion  = "0.17.1"
+
+    val enumeratumCirceVersion = "1.7.0"
   }
 
   object Libraries {
@@ -23,9 +25,9 @@ object Dependencies {
     val circeParser  = "io.circe" %% "circe-parser"      % V.circeVersion
     val circeSchema  = "io.circe" %% "circe-json-schema" % V.circeSchemaVersion
 
-    val redis = "dev.profunktor" %% "redis4cats-effects" % V.redisVersion
-
-    val pureConfig = "com.github.pureconfig" %% "pureconfig" % V.pureConfigVersion
+    val redis           = "dev.profunktor"        %% "redis4cats-effects" % V.redisVersion
+    val pureConfig      = "com.github.pureconfig" %% "pureconfig"         % V.pureConfigVersion
+    val enumeratumCirce = "com.beachape"          %% "enumeratum-circe"   % V.enumeratumCirceVersion
   }
 
 }

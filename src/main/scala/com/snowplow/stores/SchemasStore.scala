@@ -9,7 +9,7 @@ import io.circe.Json
 
 sealed trait SchemasStore[F[_]] {
   def get(schemaId: SchemaId): F[Option[Json]]
-  def add(schemaId: SchemaId, schema: Json): F[Unit]
+  def add(schemaId: SchemaId, schema: Json): F[Boolean]
 }
 
 object SchemasStore {
@@ -24,8 +24,8 @@ object SchemasStore {
       redis.get(schemaId)
     }
 
-    override def add(schemaId: SchemaId, schema: Json): F[Unit] = {
-      redis.set(schemaId, schema)
+    override def add(schemaId: SchemaId, schema: Json): F[Boolean] = {
+      redis.setNx(schemaId, schema)
     }
   }
 }

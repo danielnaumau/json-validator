@@ -1,4 +1,4 @@
-package com.snowplow.http
+package com.snowplow.http.dsl
 
 import cats.effect.kernel.Async
 import org.http4s.HttpRoutes

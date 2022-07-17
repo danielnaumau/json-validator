@@ -16,10 +16,12 @@ lazy val root = (project in file("."))
       Libraries.circeSchema,
       Libraries.circeCore,
       Libraries.circeParser,
+      Libraries.circeGeneric,
       Libraries.http4sBlazeServer,
       Libraries.http4sDsl,
       Libraries.http4sCirce,
       Libraries.redis,
-      Libraries.pureConfig
+      Libraries.pureConfig,
+      Libraries.enumeratumCirce
     )
   )
