@@ -1,0 +1,30 @@
+version: '3.6'
+
+networks:
+  app: {}
+
+services:
+  redis:
+    restart: always
+    image: redis:6.0.8
+    ports:
+      - 6379:6379
+    networks:
+      - app
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+
+
+  json-validator:
+    image: danielnaumau/json-validator:latest
+    environment:
+      - REDIS_URI=redis://redis:6379
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+    networks:
+      - app

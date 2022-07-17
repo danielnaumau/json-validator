@@ -1,0 +1,15 @@
+# sbt
+# (may want to keep parts of 'project')
+bin/
+project/target
+project/project
+target/
+build/
+
+# intellij idea
+*.log
+*.iml
+*.ipr
+*.iws
+.idea
+.bsp
