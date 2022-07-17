@@ -8,12 +8,10 @@ import io.circe.Json
 import io.circe.jawn._
 
 object RedisCodecs {
-  val schemaIdEpi: SplitEpi[String, SchemaId] =
-    SplitEpi(SchemaId.apply, _.value)
 
   val jsonEpi: SplitEpi[String, Json] =
     SplitEpi(parse(_).getOrElse(Json.obj()), _.noSpaces)
 
   val schemasStoreCodec: RedisCodec[SchemaId, Json] =
-    Codecs.derive(RedisCodec.Utf8, schemaIdEpi, jsonEpi)
+    Codecs.derive(RedisCodec.Utf8, jsonEpi)
 }
