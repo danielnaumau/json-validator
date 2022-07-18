@@ -16,17 +16,23 @@ final class ValidationsDsl[F[_]: Async](schemasStore: SchemasStore[F]) extends H
   def routes(implicit responseEncoder: EntityEncoder[F, Response]): HttpRoutes[F] =
     HttpRoutes.of[F] {
       case req @ POST -> Root / schemaId =>
-        for {
-          json      <- req.as[Json]
+        val res = for {
+          json <- req.as[Json]
           schemaOpt <- schemasStore.get(schemaId).map(_.map(Schema.load))
-          res <- schemaOpt
-                  .map(schema => Ok(validateJson(schemaId, schema, json)))
-                  .getOrElse(NotFound(notFound(schemaId)))
-        } yield res
+          status <- schemaOpt
+            .map(schema => Ok(validateJson(schemaId, schema, json)))
+            .getOrElse(NotFound(notFound(schemaId)))
+        } yield status
+
+        res.handleErrorWith(error => BadRequest(errorResponse(schemaId, error.getLocalizedMessage)))
+
     }
 
   private def notFound(schemaId: SchemaId): Response =
     Response(schemaId, Action.ValidateDocument, Status.Error, s"Schema: $schemaId doesn't exist".some)
+
+  private def errorResponse(schemaId: SchemaId, msg: String): Response =
+    Response(schemaId, Action.ValidateDocument, Status.Error, Some(msg))
 
   private def allErrors(errors: NonEmptyList[ValidationError]): String =
     errors.map(_.getLocalizedMessage).mkString_(" ")
@@ -35,7 +41,7 @@ final class ValidationsDsl[F[_]: Async](schemasStore: SchemasStore[F]) extends H
     schema
       .validate(json.deepDropNullValues)
       .fold(
-        errors => Response(schemaId, Action.ValidateDocument, Status.Error, allErrors(errors).some),
+        errors => errorResponse(schemaId, allErrors(errors)),
         _ => Response(schemaId, Action.ValidateDocument, Status.Success)
       )
 }

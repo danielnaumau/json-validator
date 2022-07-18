@@ -1,6 +1,7 @@
 package com.snowplow.http
 
 import io.circe.generic.auto._
+
 import cats.effect.{Async, ExitCode}
 import cats.implicits.toFunctorOps
 import com.snowplow.AppConfig.HttpConfig
