@@ -1,18 +1,18 @@
 package com.snowplow.http
 
-import io.circe.generic.auto._
 import cats.effect.{Async, ExitCode}
 import cats.implicits.toFunctorOps
 import com.snowplow.AppConfig.HttpConfig
 import com.snowplow.http.Models.Response
 import com.snowplow.http.dsl.{HealthCheckDsl, SchemasDsl, ValidationsDsl}
 import com.snowplow.stores.SchemasStore
-import org.typelevel.log4cats.Logger
-import org.http4s.{EntityEncoder, HttpRoutes}
+import io.circe.generic.auto._
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.circe.jsonEncoderOf
 import org.http4s.server.Router
 import org.http4s.syntax.all._
+import org.http4s.{EntityEncoder, HttpRoutes}
+import org.typelevel.log4cats.Logger
 
 final case class HttpServer[F[_]: Async](routes: HttpRoutes[F], httpConfig: HttpConfig) {
   def start: F[ExitCode] =
@@ -34,8 +34,8 @@ object HttpServer {
     val healthCheckDsl = new HealthCheckDsl[F]
 
     val routes = Router[F](
-      "isAlive" -> healthCheckDsl.routes,
-      "schema" -> schemasDsl.routes,
+      "isAlive"  -> healthCheckDsl.routes,
+      "schema"   -> schemasDsl.routes,
       "validate" -> validationsDsl.routes
     )
 

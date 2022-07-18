@@ -42,9 +42,6 @@ final class ValidationsDsl[F[_]: Async: Logger](schemasStore: SchemasStore[F]) e
   private def errorResponse(schemaId: SchemaId, msg: String): Response =
     Response(schemaId, Action.ValidateDocument, Status.Error, Some(msg))
 
-  private def allErrors(errors: NonEmptyList[ValidationError]): String =
-    errors.map(_.getLocalizedMessage).mkString_(" ")
-
   private def validateJson(
       schemaId: SchemaId,
       schema: Schema,
@@ -56,4 +53,7 @@ final class ValidationsDsl[F[_]: Async: Logger](schemasStore: SchemasStore[F]) e
         errors => BadRequest(errorResponse(schemaId, allErrors(errors))),
         _ => Ok(Response(schemaId, Action.ValidateDocument, Status.Success))
       )
+
+  private def allErrors(errors: NonEmptyList[ValidationError]): String =
+    errors.map(_.getLocalizedMessage).mkString_(" ")
 }

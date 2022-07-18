@@ -12,8 +12,8 @@ object Main extends IOApp {
 
   override def run(args: List[String]): IO[ExitCode] = {
     for {
-      config   <- AppConfig.load[IO]
-      _        <- catsLogger.info(s"Loaded config: $config")
+      config <- AppConfig.load[IO]
+      _      <- catsLogger.info(s"Loaded config: $config")
       exitCode <- SchemasStore
                    .make[IO](config.redis.uri)
                    .use(HttpServer(config.http, _).start)
