@@ -12,6 +12,7 @@ object Models {
   case object Action extends Enum[Action] with CirceEnum[Action] {
     case object UploadSchema     extends Action
     case object ValidateDocument extends Action
+    case object DownloadSchema   extends Action
 
     val values = findValues
   }

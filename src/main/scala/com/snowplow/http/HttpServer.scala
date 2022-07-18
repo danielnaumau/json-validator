@@ -13,7 +13,7 @@ import org.http4s.circe.jsonEncoderOf
 import org.http4s.server.Router
 import org.http4s.syntax.all._
 
-class HttpServer[F[_]: Async](routes: HttpRoutes[F], httpConfig: HttpConfig) {
+final case class HttpServer[F[_]: Async](routes: HttpRoutes[F], httpConfig: HttpConfig) {
   def start: F[ExitCode] =
     BlazeServerBuilder[F]
       .bindHttp(httpConfig.port, httpConfig.host)
