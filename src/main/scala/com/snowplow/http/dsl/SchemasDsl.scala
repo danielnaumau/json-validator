@@ -19,16 +19,22 @@ final class SchemasDsl[F[_]: Async](schemasStore: SchemasStore[F]) extends Http4
           .get(schemaId)
           .flatMap(_.map(Ok(_)).getOrElse(NotFound(notFound(schemaId))))
       case req @ POST -> Root / schemaId =>
-        for {
+        val res = for {
           json <- req.as[Json]
           res  <- schemasStore.add(schemaId, json)
           status <-
             if (res)
               Created(Response(schemaId, Action.UploadSchema, Status.Success))
             else
-              Conflict(Response(schemaId, Action.UploadSchema, Status.Error, Some(s"$schemaId already exists")))
+              Conflict(errorResponse(schemaId, s"$schemaId already exists"))
         } yield status
+
+        res.handleErrorWith(error => BadRequest(errorResponse(schemaId, error.getLocalizedMessage)))
+
     }
+
+  private def errorResponse(schemaId: SchemaId, msg: String): Response =
+    Response(schemaId, Action.UploadSchema, Status.Error, Some(msg))
 
   private def notFound(schemaId: SchemaId): Response =
     Response(schemaId, Action.DownloadSchema, Status.Error, s"Schema $schemaId doesn't exist".some)
