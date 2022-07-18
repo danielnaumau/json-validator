@@ -11,6 +11,7 @@ object Dependencies {
     val pureConfigVersion  = "0.17.1"
 
     val enumeratumCirceVersion = "1.7.0"
+    val mockitoVersion         = "3.2.12.0"
   }
 
   object Libraries {
@@ -19,6 +20,7 @@ object Dependencies {
     val http4sCirce       = "org.http4s" %% "http4s-circe"        % V.http4sVersion
 
     val scalaTest = "org.scalatest" %% "scalatest" % V.scalaTestVersion % Test
+    val mockito   = "org.scalatestplus" %% "mockito-4-5" % V.mockitoVersion % Test
 
     val circeCore    = "io.circe" %% "circe-core"        % V.circeVersion
     val circeGeneric = "io.circe" %% "circe-generic"     % V.circeVersion
