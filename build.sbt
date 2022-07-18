@@ -24,6 +24,8 @@ lazy val root = (project in file("."))
       Libraries.pureConfig,
       Libraries.enumeratumCirce,
       Libraries.scalaTest,
-      Libraries.mockito
+      Libraries.mockito,
+      Libraries.logback,
+      Libraries.slf4jCats,
     )
   )

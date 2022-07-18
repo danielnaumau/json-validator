@@ -5,12 +5,14 @@ import cats.implicits._
 import com.snowplow.SchemaId
 import com.snowplow.http.Models._
 import com.snowplow.stores.SchemasStore
-import io.circe.Json
+import io.circe._
 import org.http4s.circe._
 import org.http4s.dsl._
 import org.http4s.{EntityEncoder, HttpRoutes}
+import org.typelevel.log4cats.Logger
+import org.typelevel.log4cats.syntax._
 
-final class SchemasDsl[F[_]: Async](schemasStore: SchemasStore[F]) extends Http4sDsl[F] {
+final class SchemasDsl[F[_]: Async: Logger](schemasStore: SchemasStore[F]) extends Http4sDsl[F] {
 
   def routes(implicit responseEncoder: EntityEncoder[F, Response]): HttpRoutes[F] =
     HttpRoutes.of[F] {
@@ -22,14 +24,20 @@ final class SchemasDsl[F[_]: Async](schemasStore: SchemasStore[F]) extends Http4
         val res = for {
           json <- req.as[Json]
           res  <- schemasStore.add(schemaId, json)
-          status <-
-            if (res)
-              Created(Response(schemaId, Action.UploadSchema, Status.Success))
-            else
-              Conflict(errorResponse(schemaId, s"$schemaId already exists"))
+          status <- if (res)
+                     Created(Response(schemaId, Action.UploadSchema, Status.Success))
+                   else {
+                     warn"Failed to post scheme $schemaId: $schemaId already exists" *>
+                       Conflict(errorResponse(schemaId, s"$schemaId already exists"))
+                   }
         } yield status
 
-        res.handleErrorWith(error => BadRequest(errorResponse(schemaId, error.getLocalizedMessage)))
+        res
+          .handleErrorWith(
+            error =>
+              warn"Failed to post scheme $schemaId: ${error.getMessage}" *>
+                BadRequest(errorResponse(schemaId, error.getLocalizedMessage))
+          )
 
     }
 

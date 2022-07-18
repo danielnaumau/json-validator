@@ -1,13 +1,13 @@
 package com.snowplow.http
 
 import io.circe.generic.auto._
-
 import cats.effect.{Async, ExitCode}
 import cats.implicits.toFunctorOps
 import com.snowplow.AppConfig.HttpConfig
 import com.snowplow.http.Models.Response
 import com.snowplow.http.dsl.{HealthCheckDsl, SchemasDsl, ValidationsDsl}
 import com.snowplow.stores.SchemasStore
+import org.typelevel.log4cats.Logger
 import org.http4s.{EntityEncoder, HttpRoutes}
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.circe.jsonEncoderOf
@@ -26,7 +26,7 @@ final case class HttpServer[F[_]: Async](routes: HttpRoutes[F], httpConfig: Http
 }
 
 object HttpServer {
-  def apply[F[_]: Async](httpConfig: HttpConfig, schemasStore: SchemasStore[F]): HttpServer[F] = {
+  def apply[F[_]: Async: Logger](httpConfig: HttpConfig, schemasStore: SchemasStore[F]): HttpServer[F] = {
     implicit val responseEntityEncoder: EntityEncoder[F, Response] = jsonEncoderOf[F, Response]
 
     val schemasDsl     = new SchemasDsl[F](schemasStore)

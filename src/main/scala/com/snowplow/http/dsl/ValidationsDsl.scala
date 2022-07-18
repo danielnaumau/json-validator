@@ -10,21 +10,29 @@ import io.circe.Json
 import io.circe.schema.{Schema, ValidationError}
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
-import org.http4s.{EntityEncoder, HttpRoutes}
+import org.http4s.{EntityEncoder, HttpRoutes, Response => HttpResponse}
+import org.typelevel.log4cats.Logger
+import org.typelevel.log4cats.syntax._
 
-final class ValidationsDsl[F[_]: Async](schemasStore: SchemasStore[F]) extends Http4sDsl[F] {
+final class ValidationsDsl[F[_]: Async: Logger](schemasStore: SchemasStore[F]) extends Http4sDsl[F] {
   def routes(implicit responseEncoder: EntityEncoder[F, Response]): HttpRoutes[F] =
     HttpRoutes.of[F] {
       case req @ POST -> Root / schemaId =>
         val res = for {
-          json <- req.as[Json]
+          json      <- req.as[Json]
           schemaOpt <- schemasStore.get(schemaId).map(_.map(Schema.load))
           status <- schemaOpt
-            .map(schema => Ok(validateJson(schemaId, schema, json)))
-            .getOrElse(NotFound(notFound(schemaId)))
+                     .map(schema => validateJson(schemaId, schema, json))
+                     .getOrElse(
+                       warn"Failed to validate scheme: $schemaId doesn't exist" *> NotFound(notFound(schemaId))
+                     )
         } yield status
 
-        res.handleErrorWith(error => BadRequest(errorResponse(schemaId, error.getLocalizedMessage)))
+        res.handleErrorWith(
+          error =>
+            warn"Failed to validate scheme $schemaId: ${error.getLocalizedMessage}" *>
+              BadRequest(errorResponse(schemaId, error.getLocalizedMessage))
+        )
 
     }
 
@@ -37,11 +45,15 @@ final class ValidationsDsl[F[_]: Async](schemasStore: SchemasStore[F]) extends H
   private def allErrors(errors: NonEmptyList[ValidationError]): String =
     errors.map(_.getLocalizedMessage).mkString_(" ")
 
-  private def validateJson(schemaId: SchemaId, schema: Schema, json: Json): Response =
+  private def validateJson(
+      schemaId: SchemaId,
+      schema: Schema,
+      json: Json
+  )(implicit responseEncoder: EntityEncoder[F, Response]): F[HttpResponse[F]] =
     schema
       .validate(json.deepDropNullValues)
       .fold(
-        errors => errorResponse(schemaId, allErrors(errors)),
-        _ => Response(schemaId, Action.ValidateDocument, Status.Success)
+        errors => BadRequest(errorResponse(schemaId, allErrors(errors))),
+        _ => Ok(Response(schemaId, Action.ValidateDocument, Status.Success))
       )
 }
