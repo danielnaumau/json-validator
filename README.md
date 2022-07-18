@@ -1,3 +1,3 @@
 # json-validator
 
-Execute docker-compose up to run this application
+Execute **docker-compose up** to run this application
