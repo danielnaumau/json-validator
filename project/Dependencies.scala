@@ -12,6 +12,10 @@ object Dependencies {
 
     val enumeratumCirceVersion = "1.7.0"
     val mockitoVersion         = "3.2.12.0"
+
+    val log4jVersion   = "2.2.0"
+    val logbackVersion = "1.2.10"
+
   }
 
   object Libraries {
@@ -30,6 +34,9 @@ object Dependencies {
     val redis           = "dev.profunktor"        %% "redis4cats-effects" % V.redisVersion
     val pureConfig      = "com.github.pureconfig" %% "pureconfig"         % V.pureConfigVersion
     val enumeratumCirce = "com.beachape"          %% "enumeratum-circe"   % V.enumeratumCirceVersion
+
+    val slf4jCats = "org.typelevel" %% "log4cats-slf4j"  % V.log4jVersion
+    val logback   = "ch.qos.logback" % "logback-classic" % V.logbackVersion
   }
 
 }
